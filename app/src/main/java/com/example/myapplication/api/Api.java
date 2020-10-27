@@ -1,13 +1,20 @@
 package com.example.myapplication.api;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.example.myapplication.activity.LoginActivity;
+import com.example.myapplication.util.StringUtils;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -69,5 +76,48 @@ public class Api {
             }
         });
     }
+
+    // 首页视频列表接口实现
+    // 封装好request后，则编写具体接口
+    public void getRequest(final HttpCallBack callback) {
+        String url = getAppendUrl(requestUrl, mParams);
+        Request request = new Request.Builder()
+                .url(url)
+                .get()              // 请求方法是get
+                .build();
+        Call call = client.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("onFailure", e.getMessage());
+                callback.onFailure(e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String result = response.body().string();
+                callback.onSuccess(result);
+            }
+        });
+    }
+
+    private String getAppendUrl(String url, Map<String, Object> map) {
+        if (map != null && !map.isEmpty()) {
+            StringBuffer buffer = new StringBuffer();
+            Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, Object> entry = iterator.next();
+                if (StringUtils.isEmpty(buffer.toString())) {
+                    buffer.append("?");
+                } else {
+                    buffer.append("&");
+                }
+                buffer.append(entry.getKey()).append("=").append(entry.getValue());
+            }
+            url += buffer.toString();
+        }
+        return url;
+    }
+
 }
 
