@@ -24,6 +24,7 @@ import com.example.myapplication.entity.VideoEntity;
 import com.example.myapplication.entity.VideoListResponse;
 import com.example.myapplication.util.StringUtils;
 import com.google.gson.Gson;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class VideoFragment extends BaseFragment {
 
     private String title;
     private RecyclerView recyclerView;
+    private RefreshLayout refreshLayout;
 
     public VideoFragment() {
         // Required empty public constructor
@@ -52,6 +54,7 @@ public class VideoFragment extends BaseFragment {
 
         View v = inflater.inflate(R.layout.fragment_video, container, false);
         recyclerView = v.findViewById(R.id.recyclerView);
+        refreshLayout = v.findViewById(R.id.refreshLayout);
 
         return v;
     }

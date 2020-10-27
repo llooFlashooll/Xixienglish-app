@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.R;
 import com.example.myapplication.entity.VideoEntity;
+import com.example.myapplication.view.CircleTransform;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -49,7 +50,10 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         vh.tvCollect.setText(String.valueOf(videoEntity.getCollectCount()));
 
         // 利用Picasso导入图片链接绑定
-        Picasso.with(mContext).load(videoEntity.getHeadurl()).into(vh.imgHeader);
+        Picasso.with(mContext)
+                .load(videoEntity.getHeadurl())
+                .transform(new CircleTransform())
+                .into(vh.imgHeader);
         Picasso.with(mContext).load(videoEntity.getCoverurl()).into(vh.imgCover);
 
     }
