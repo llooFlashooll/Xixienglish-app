@@ -8,10 +8,12 @@ import android.os.Bundle;
 
 import com.example.myapplication.R;
 import com.example.myapplication.adapter.MyPagerAdapter;
+import com.example.myapplication.entity.NewsEntity;
 import com.example.myapplication.entity.TabEntity;
 import com.example.myapplication.fragment.CollectFragment;
 import com.example.myapplication.fragment.HomeFragment;
 import com.example.myapplication.fragment.MyFragment;
+import com.example.myapplication.fragment.NewsFragment;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 
 public class HomeActivity extends BaseActivity {
 
-    private String[] mTitles = {"首页", "收藏", "我的"};
+    private String[] mTitles = {"首页", "资讯", "我的"};
     private int[] mIconUnselectIds = {
             R.mipmap.home_unselect, R.mipmap.collect_unselect,
             R.mipmap.my_unselect };
@@ -48,7 +50,7 @@ public class HomeActivity extends BaseActivity {
     protected void initData() {
         // 添加fragments
         mFragments.add(HomeFragment.newInstance());
-        mFragments.add(CollectFragment.newInstance());
+        mFragments.add(NewsFragment.newInstance());
         mFragments.add(MyFragment.newInstance());
         for (int i = 0; i < mTitles.length; i++) {
             mTabEntities.add(new TabEntity(mTitles[i], mIconSelectIds[i], mIconUnselectIds[i]));
