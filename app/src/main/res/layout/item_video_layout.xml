@@ -52,20 +52,22 @@
 
         </LinearLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="187dp"
-            android:layout_marginTop="8dp">
+<!--        预览图片-->
+<!--        <RelativeLayout-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="187dp"-->
+<!--            android:layout_marginTop="8dp">-->
 
-             <ImageView
-                 android:id="@+id/img_cover"
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"
-                 android:scaleType="fitXY"
-                 android:src="@mipmap/default_bg" />
+<!--             <ImageView-->
+<!--                 android:id="@+id/img_cover"-->
+<!--                 android:layout_width="match_parent"-->
+<!--                 android:layout_height="match_parent"-->
+<!--                 android:scaleType="fitXY"-->
+<!--                 android:src="@mipmap/default_bg" />-->
 
-        </RelativeLayout>
+<!--        </RelativeLayout>-->
 
+<!--        视频播放器-->
         <FrameLayout
             android:id="@+id/player_container"
             android:layout_width="match_parent"
@@ -75,7 +77,7 @@
             app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintTop_toTopOf="parent">
 
-            <com.qmuiteam.qmui.widget.QMUIEmptyView
+            <com.dueeeke.videocontroller.component.PrepareView
                 android:id="@+id/prepare_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />

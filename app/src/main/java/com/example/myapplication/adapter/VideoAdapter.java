@@ -5,14 +5,18 @@ import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.dueeeke.videocontroller.component.PrepareView;
 import com.example.myapplication.R;
 import com.example.myapplication.entity.VideoEntity;
+import com.example.myapplication.listener.OnItemChildClickListener;
+import com.example.myapplication.listener.OnItemClickListener;
 import com.example.myapplication.view.CircleTransform;
 import com.squareup.picasso.Picasso;
 
@@ -28,10 +32,13 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         this.datas = datas;
     }
 
+    private OnItemChildClickListener mOnItemChildClickListener;
+
+    private OnItemClickListener mOnItemClickListener;
+
     public VideoAdapter(Context context) {
         this.mContext = context;
     }
-
 
     @NonNull
     @Override
@@ -57,8 +64,11 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 .load(videoEntity.getHeadurl())
                 .transform(new CircleTransform())
                 .into(vh.imgHeader);
-        Picasso.with(mContext).load(videoEntity.getCoverurl()).into(vh.imgCover);
+        Picasso.with(mContext)
+                .load(videoEntity.getCoverurl())
+                .into(vh.mThumb);
 
+        vh.mPosition = position;
     }
 
     @Override
@@ -70,7 +80,7 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private TextView tvTitle;
         private TextView tvAuthor;
         private TextView tvDz;
@@ -78,7 +88,12 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         private TextView tvCollect;
         // 视频图片预加载
         private ImageView imgHeader;
-        private ImageView imgCover;
+//        private ImageView imgCover;
+        // 视频封面图
+        public ImageView mThumb;
+        public PrepareView mPrepareView;
+        public FrameLayout mPlayerContainer;    // 视频播放容器
+        public int mPosition;
 
         public ViewHolder(@NonNull View view) {
             super(view);
@@ -88,7 +103,40 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             tvComment = view.findViewById(R.id.comment);
             tvCollect = view.findViewById(R.id.collect);
             imgHeader = view.findViewById(R.id.img_header);
-            imgCover = view.findViewById(R.id.img_cover);
+//            imgCover = view.findViewById(R.id.img_cover);
+            mPlayerContainer = view.findViewById(R.id.player_container);
+            mPrepareView = view.findViewById(R.id.prepare_view);
+            mThumb = mPrepareView.findViewById(R.id.thumb);
+            if (mOnItemChildClickListener != null) {
+                mPlayerContainer.setOnClickListener(this);
+            }
+            if (mOnItemClickListener != null) {
+                view.setOnClickListener(this);
+            }
+            // 通过tag将ViewHolder和itemView绑定
+            view.setTag(this);
         }
+
+        @Override
+        public void onClick(View v) {
+            if (v.getId() == R.id.player_container) {
+                if (mOnItemChildClickListener != null) {
+                    mOnItemChildClickListener.onItemChildClick(mPosition);
+                }
+            } else {
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClick(mPosition);
+                }
+            }
+
+        }
+    }
+
+    public void setOnItemChildClickListener(OnItemChildClickListener onItemChildClickListener) {
+        mOnItemChildClickListener = onItemChildClickListener;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        mOnItemClickListener = onItemClickListener;
     }
 }
