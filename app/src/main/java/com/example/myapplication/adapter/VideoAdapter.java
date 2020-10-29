@@ -24,9 +24,12 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private Context mContext;
     private List<VideoEntity> datas;
 
-    public VideoAdapter(Context context, List<VideoEntity> datas) {
-        this.mContext = context;
+    public void setDatas(List<VideoEntity> datas) {
         this.datas = datas;
+    }
+
+    public VideoAdapter(Context context) {
+        this.mContext = context;
     }
 
 
@@ -45,9 +48,9 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         VideoEntity videoEntity = datas.get(position);
         vh.tvTitle.setText(videoEntity.getVtitle());
         vh.tvAuthor.setText(videoEntity.getAuthor());
-        vh.tvDz.setText(String.valueOf(videoEntity.getLikeNum()));
-        vh.tvComment.setText(String.valueOf(videoEntity.getCommentCount()));
-        vh.tvCollect.setText(String.valueOf(videoEntity.getCollectCount()));
+        vh.tvDz.setText(String.valueOf(videoEntity.getLikenum()));
+        vh.tvComment.setText(String.valueOf(videoEntity.getCommentnum()));
+        vh.tvCollect.setText(String.valueOf(videoEntity.getCollectnum()));
 
         // 利用Picasso导入图片链接绑定
         Picasso.with(mContext)
@@ -60,7 +63,11 @@ public class VideoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     @Override
     public int getItemCount() {
-        return datas.size();
+        if (datas != null && datas.size() > 0) {
+            return datas.size();
+        } else {
+            return 0;
+        }
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

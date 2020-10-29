@@ -85,6 +85,10 @@ public class VideoEntity implements Serializable{
     private String categoryName;
     private VideoSocialEntity videoSocialEntity;
 
+    private int commentnum;
+    private int likenum;
+    private int collectnum;
+
     public int getVid() {
         return vid;
     }
@@ -173,6 +177,30 @@ public class VideoEntity implements Serializable{
         this.videoSocialEntity = videoSocialEntity;
     }
 
+    public int getCommentnum() {
+        return commentnum;
+    }
+
+    public void setCommentnum(int commentnum) {
+        this.commentnum = commentnum;
+    }
+
+    public int getLikenum() {
+        return likenum;
+    }
+
+    public void setLikenum(int likenum) {
+        this.likenum = likenum;
+    }
+
+    public int getCollectnum() {
+        return collectnum;
+    }
+
+    public void setCollectnum(int collectnum) {
+        this.collectnum = collectnum;
+    }
+
     public static class VideoSocialEntity {
         /**
          * commentnum : 103
@@ -180,35 +208,9 @@ public class VideoEntity implements Serializable{
          * collectnum : 220
          */
 
-        private int commentnum;
-        private int likenum;
-        private int collectnum;
+
         private boolean flagLike;
         private boolean flagCollect;
-
-        public int getCommentnum() {
-            return commentnum;
-        }
-
-        public void setCommentnum(int commentnum) {
-            this.commentnum = commentnum;
-        }
-
-        public int getLikenum() {
-            return likenum;
-        }
-
-        public void setLikenum(int likenum) {
-            this.likenum = likenum;
-        }
-
-        public int getCollectnum() {
-            return collectnum;
-        }
-
-        public void setCollectnum(int collectnum) {
-            this.collectnum = collectnum;
-        }
 
         public boolean isFlagLike() {
             return flagLike;
