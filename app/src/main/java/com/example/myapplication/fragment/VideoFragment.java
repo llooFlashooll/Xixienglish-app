@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +50,7 @@ import java.util.List;
 
 public class VideoFragment extends BaseFragment implements OnItemChildClickListener {
 
-    private String title;
+    private int categoryId; // categoryId类似于导航栏title
     private RecyclerView recyclerView;
     private RefreshLayout refreshLayout;
     private int pageNum = 1;
@@ -67,12 +69,26 @@ public class VideoFragment extends BaseFragment implements OnItemChildClickListe
     // 上次播放位置，用于页面切回来之后恢复播放
     protected int mLastPos = mCurPos;
 
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            // 通知页面刷新数据
+            switch (msg.what) {
+                case 0:
+                    videoAdapter.setDatas(datas);
+                    videoAdapter.notifyDataSetChanged();
+                    break;
+            }
+        }
+    };
+
     public VideoFragment() {
     }
 
-    public static VideoFragment newInstance(String title) {
+    public static VideoFragment newInstance(int categoryId) {
         VideoFragment fragment = new VideoFragment();
-        fragment.title = title;
+        fragment.categoryId = categoryId;
         return fragment;
     }
 
@@ -266,46 +282,42 @@ public class VideoFragment extends BaseFragment implements OnItemChildClickListe
             params.put("token", token);
             params.put("page", pageNum);
             params.put("limit",ApiConfig.PAGE_SIZE);
-            Api.config(ApiConfig.VIDEO_LIST, params).getRequest(new HttpCallBack() {
+            params.put("categoryId", categoryId);
+            Api.config(ApiConfig.VIDEO_LIST_BY_CATEGORY, params).getRequest(new HttpCallBack() {
                 @Override
                 public void onSuccess(final String res) {
                     // 页面UI在线程里执行
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // 页面上拉刷新成功
-                            if (isRefresh) {
-                                refreshLayout.finishRefresh(true);
-                            } else {
-                                refreshLayout.finishLoadMore(true);
-                            }
-                            // 获取视频数据后则传入VideoAdapter
+                    // 页面上拉刷新成功
+                    if (isRefresh) {
+                        refreshLayout.finishRefresh(true);
+                    } else {
+                        refreshLayout.finishLoadMore(true);
+                    }
+                    // 获取视频数据后则传入VideoAdapter
 //                    VideoAdapter videoAdapter = new VideoAdapter(getActivity(), datas);
 //                    recyclerView.setAdapter(videoAdapter);
-                            // 通过Gson库进行转换??
-                            VideoListResponse response = new Gson().fromJson(res, VideoListResponse.class);
-                            if (response != null && response.getCode() == 0) {
-                                List<VideoEntity> list = response.getPage().getList();
-                                if (list != null && list.size() > 0) {
-                                    // 刷新添加数据
-                                    if(isRefresh) {
-                                        datas = list;
-                                    } else {
-                                        datas.addAll(list);
-                                    }
-                                    // 通知页面刷新数据
-                                    videoAdapter.setDatas(datas);
-                                    videoAdapter.notifyDataSetChanged();
-                                } else {
-                                    if(isRefresh) {
-                                        showToast("暂时无数据");
-                                    } else {
-                                        showToast("没有更多数据");
-                                    }
-                                }
+                    // 通过Gson库进行转换??
+                    VideoListResponse response = new Gson().fromJson(res, VideoListResponse.class);
+                    if (response != null && response.getCode() == 0) {
+                        List<VideoEntity> list = response.getPage().getList();
+                        if (list != null && list.size() > 0) {
+                            // 刷新添加数据
+                            if(isRefresh) {
+                                datas = list;
+                            } else {
+                                datas.addAll(list);
+                            }
+                            //通过mHandler处理线程问题
+                            mHandler.sendEmptyMessage(0);
+
+                        } else {
+                            if(isRefresh) {
+                                showToastSync("暂时无数据");
+                            } else {
+                                showToastSync("没有更多数据");
                             }
                         }
-                    });
+                    }
                 }
 
                 @Override

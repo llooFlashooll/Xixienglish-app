@@ -14,17 +14,28 @@ import android.view.ViewGroup;
 
 import com.example.myapplication.R;
 import com.example.myapplication.adapter.HomeAdapter;
+import com.example.myapplication.api.Api;
+import com.example.myapplication.api.ApiConfig;
+import com.example.myapplication.api.HttpCallBack;
+import com.example.myapplication.entity.CategoryEntity;
+import com.example.myapplication.entity.VideoCategoryResponse;
+import com.example.myapplication.util.StringUtils;
 import com.flyco.tablayout.SlidingTabLayout;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
 
     private ArrayList<Fragment> mFragments = new ArrayList<>();
-    private final String[] mTitles = {
-            "热门", "IOS", "Android", "前端", "后端"
-    };
+    // 应该由接口获取title导航栏，不用写死
+//    private final String[] mTitles = {
+//            "热门", "IOS", "Android", "前端", "后端"
+//    };
+    private String[] mTitles;
     private ViewPager viewPager;
     private SlidingTabLayout slidingTabLayout;
     public HomeFragment() {
@@ -37,23 +48,57 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_home, container, false);
-        viewPager = v.findViewById(R.id.fixedViewPager);
-        slidingTabLayout = v.findViewById(R.id.slidingTabLayout);
-        return v;
+    protected int initLayout() {
+        return R.layout.fragment_home;
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    protected void initView() {
+        viewPager = mRootView.findViewById(R.id.fixedViewPager);
+        slidingTabLayout = mRootView.findViewById(R.id.slidingTabLayout);
+    }
 
-        for (String title: mTitles) {
-            mFragments.add(VideoFragment.newInstance(title));
+    @Override
+    protected void initData() {
+        getVideoCategoryList();
+
+    }
+
+    private void getVideoCategoryList() {
+        String token = getStringFromSp("token");
+        if(!StringUtils.isEmpty(token)) {
+            HashMap<String, Object> params = new HashMap<>();
+            params.put("token", token);
+            Api.config(ApiConfig.VIDEO_CATEGORY_LIST, params).getRequest(new HttpCallBack() {
+                @Override
+                public void onSuccess(final String res) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            VideoCategoryResponse response = new Gson().fromJson(res, VideoCategoryResponse.class);
+                            if (response != null && response.getCode() == 0) {
+                                List<CategoryEntity> list = response.getPage().getList();
+                                if (list != null && list.size() > 0) {
+                                    // 通过接口获取导航栏名称
+                                    mTitles = new String[list.size()];
+                                    for (int i = 0; i < list.size(); i++) {
+                                        mTitles[i] = list.get(i).getCategoryName();
+                                        mFragments.add(VideoFragment.newInstance(list.get(i).getCategoryId()));
+                                    }
+                                    viewPager.setOffscreenPageLimit(mFragments.size());
+                                    viewPager.setAdapter(new HomeAdapter(getFragmentManager(), mTitles, mFragments));
+                                    slidingTabLayout.setViewPager(viewPager);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                }
+            });
         }
-        viewPager.setOffscreenPageLimit(mFragments.size());
-        viewPager.setAdapter(new HomeAdapter(getFragmentManager(), mTitles, mFragments));
-        slidingTabLayout.setViewPager(viewPager);
+
     }
 }
