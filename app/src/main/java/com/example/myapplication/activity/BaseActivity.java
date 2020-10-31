@@ -7,8 +7,11 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.appcompat.app.SkinAppCompatDelegateImpl;
 
 public abstract class BaseActivity extends AppCompatActivity {
     public Context mContext;
@@ -44,10 +47,23 @@ public abstract class BaseActivity extends AppCompatActivity {
         startActivity(in);
     }
 
-    protected void saveStringToSp(String key, String val) {
+    // 清除先前已跳转页面
+    public void navigateToWithFlags(Class cls, int flags) {
+        Intent in = new Intent(mContext, cls);
+        in.setFlags(flags);
+        startActivity(in);
+    }
+
+    protected void insertVal(String key, String val) {
         SharedPreferences sp = getSharedPreferences("sp_flash", MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(key, val);
         editor.commit();
     }
+
+    protected String findByKey(String key) {
+        SharedPreferences sp = getSharedPreferences("sp_flash", MODE_PRIVATE);
+        return sp.getString(key, "");
+    }
+
 }

@@ -79,10 +79,13 @@ public class Api {
 
     // 首页视频列表接口实现
     // 封装好request后，则编写具体接口
-    public void getRequest(final HttpCallBack callback) {
+    public void getRequest(Context context, final HttpCallBack callback) {
+        SharedPreferences sp = context.getSharedPreferences("sp_flash", MODE_PRIVATE);
+        String token = sp.getString("token", "");
         String url = getAppendUrl(requestUrl, mParams);
         Request request = new Request.Builder()
                 .url(url)
+                .addHeader("token", token)
                 .get()              // 请求方法是get
                 .build();
         Call call = client.newCall(request);
@@ -96,6 +99,16 @@ public class Api {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String result = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String code = jsonObject.getString("code");
+                    if(code.equals("401")) {
+                        Intent in = new Intent(context, LoginActivity.class);
+                        context.startActivity(in);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 callback.onSuccess(result);
             }
         });

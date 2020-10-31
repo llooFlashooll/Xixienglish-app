@@ -114,59 +114,53 @@ public class NewsFragment extends BaseFragment {
 
     // 通过接口获取资讯数据，类似VideoFragment
     private void getNewsList(final boolean isRefresh) {
-        String token = getStringFromSp("token");
-        if(!StringUtils.isEmpty(token)) {
-            HashMap<String, Object> params = new HashMap<>();
-            // 添加参数
-            params.put("token", token);
-            params.put("page", pageNum);
-            params.put("limit", ApiConfig.PAGE_SIZE);
-            Api.config(ApiConfig.NEWS_LIST, params).getRequest(new HttpCallBack() {
-                @Override
-                public void onSuccess(final String res) {
-                    // 页面UI在线程里执行
-                    // 页面上拉刷新成功
-                    if (isRefresh) {
-                        refreshLayout.finishRefresh(true);
-                    } else {
-                        refreshLayout.finishLoadMore(true);
-                    }
+        HashMap<String, Object> params = new HashMap<>();
+        // 添加参数
+        params.put("page", pageNum);
+        params.put("limit", ApiConfig.PAGE_SIZE);
+        Api.config(ApiConfig.NEWS_LIST, params).getRequest(getActivity(), new HttpCallBack() {
+            @Override
+            public void onSuccess(final String res) {
+                // 页面UI在线程里执行
+                // 页面上拉刷新成功
+                if (isRefresh) {
+                    refreshLayout.finishRefresh(true);
+                } else {
+                    refreshLayout.finishLoadMore(true);
+                }
 
-                    NewsListResponse response = new Gson().fromJson(res, NewsListResponse.class);
-                    if (response != null && response.getCode() == 0) {
-                        List<NewsEntity> list = response.getPage().getList();
-                        if (list != null && list.size() > 0) {
-                            // 刷新添加数据
-                            if(isRefresh) {
-                                datas = list;
-                            } else {
-                                datas.addAll(list);
-                            }
-                            //通过mHandler处理线程问题
-                            mHandler.sendEmptyMessage(0);
-
+                NewsListResponse response = new Gson().fromJson(res, NewsListResponse.class);
+                if (response != null && response.getCode() == 0) {
+                    List<NewsEntity> list = response.getPage().getList();
+                    if (list != null && list.size() > 0) {
+                        // 刷新添加数据
+                        if(isRefresh) {
+                            datas = list;
                         } else {
-                            if(isRefresh) {
-                                showToastSync("暂时无数据");
-                            } else {
-                                showToastSync("没有更多数据");
-                            }
+                            datas.addAll(list);
+                        }
+                        //通过mHandler处理线程问题
+                        mHandler.sendEmptyMessage(0);
+
+                    } else {
+                        if(isRefresh) {
+                            showToastSync("暂时无数据");
+                        } else {
+                            showToastSync("没有更多数据");
                         }
                     }
                 }
+            }
 
-                @Override
-                public void onFailure(Exception e) {
-                    // 上下拉刷新动画关闭
-                    if(isRefresh) {
-                        refreshLayout.finishRefresh(true);
-                    } else {
-                        refreshLayout.finishLoadMore(true);
-                    }
+            @Override
+            public void onFailure(Exception e) {
+                // 上下拉刷新动画关闭
+                if(isRefresh) {
+                    refreshLayout.finishRefresh(true);
+                } else {
+                    refreshLayout.finishLoadMore(true);
                 }
-            });
-        } else {
-            navigateTo(LoginActivity.class);
-        }
+            }
+        });
     }
 }

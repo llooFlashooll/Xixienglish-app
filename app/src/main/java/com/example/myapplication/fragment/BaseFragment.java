@@ -15,11 +15,16 @@ import androidx.fragment.app.Fragment;
 
 import com.dueeeke.videoplayer.player.VideoViewManager;
 
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
+
 import static android.content.Context.MODE_PRIVATE;
 
 public abstract class BaseFragment extends Fragment {
     // 把Fragment共有的方法集成此处
     protected View mRootView;
+    // 使用butterknife
+    private Unbinder unbinder;
 
     @Nullable
     @Override
@@ -28,6 +33,7 @@ public abstract class BaseFragment extends Fragment {
             mRootView = inflater.inflate(initLayout(), container, false);
             initView();
         }
+        unbinder = ButterKnife.bind(this, mRootView);
         return mRootView;
     }
 
@@ -35,6 +41,12 @@ public abstract class BaseFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initData();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        unbinder.unbind();
     }
 
     protected abstract int initLayout();
@@ -59,16 +71,29 @@ public abstract class BaseFragment extends Fragment {
         startActivity(in);
     }
 
-    protected void saveStringToSp(String key, String val) {
+    public void navigateToWithFlags(Class cls, int flags) {
+        Intent in = new Intent(getActivity(), cls);
+        in.setFlags(flags);
+        startActivity(in);
+    }
+
+    protected void insertVal(String key, String val) {
         SharedPreferences sp = getActivity().getSharedPreferences("sp_flash", MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putString(key, val);
         editor.commit();
     }
 
-    protected String getStringFromSp(String key) {
+    protected String findByKey(String key) {
         SharedPreferences sp = getActivity().getSharedPreferences("sp_flash", MODE_PRIVATE);
         return sp.getString(key, "");
+    }
+
+    protected void reomveByKey(String key) {
+        SharedPreferences sp = getActivity().getSharedPreferences("sp_flash", MODE_PRIVATE);
+        SharedPreferences.Editor edit = sp.edit();
+        edit.remove(key);
+        edit.commit();
     }
 
     protected VideoViewManager getVideoViewManager() {

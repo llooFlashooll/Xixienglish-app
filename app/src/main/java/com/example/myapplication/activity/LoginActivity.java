@@ -2,6 +2,7 @@ package com.example.myapplication.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -90,9 +91,11 @@ public class LoginActivity extends BaseActivity {
                 if (loginResponse.getCode() == 0) {
                     String token = loginResponse.getToken();
                     // 应用sharedPreference存键值对
-                    saveStringToSp("token", token);
+                    insertVal("token", token);
                     // 登陆成功跳转至首页
 //                    navigateTo(HomeActivity.class);
+                    navigateToWithFlags(HomeActivity.class,
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                     showToastSync("登录成功");
                 } else {
                     showToastSync("登录失败");

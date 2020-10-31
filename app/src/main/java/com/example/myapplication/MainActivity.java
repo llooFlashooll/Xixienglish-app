@@ -11,8 +11,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.myapplication.activity.BaseActivity;
+import com.example.myapplication.activity.HomeActivity;
 import com.example.myapplication.activity.LoginActivity;
 import com.example.myapplication.activity.RegisterActivity;
+import com.example.myapplication.util.StringUtils;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 
@@ -34,6 +36,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initData() {
+        if(StringUtils.isEmpty(findByKey("token"))) {
+            navigateTo(HomeActivity.class);
+            finish();
+        }
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

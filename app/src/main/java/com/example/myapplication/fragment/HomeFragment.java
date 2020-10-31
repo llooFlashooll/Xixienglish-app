@@ -65,40 +65,36 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void getVideoCategoryList() {
-        String token = getStringFromSp("token");
-        if(!StringUtils.isEmpty(token)) {
-            HashMap<String, Object> params = new HashMap<>();
-            params.put("token", token);
-            Api.config(ApiConfig.VIDEO_CATEGORY_LIST, params).getRequest(new HttpCallBack() {
-                @Override
-                public void onSuccess(final String res) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            VideoCategoryResponse response = new Gson().fromJson(res, VideoCategoryResponse.class);
-                            if (response != null && response.getCode() == 0) {
-                                List<CategoryEntity> list = response.getPage().getList();
-                                if (list != null && list.size() > 0) {
-                                    // 通过接口获取导航栏名称
-                                    mTitles = new String[list.size()];
-                                    for (int i = 0; i < list.size(); i++) {
-                                        mTitles[i] = list.get(i).getCategoryName();
-                                        mFragments.add(VideoFragment.newInstance(list.get(i).getCategoryId()));
-                                    }
-                                    viewPager.setOffscreenPageLimit(mFragments.size());
-                                    viewPager.setAdapter(new HomeAdapter(getFragmentManager(), mTitles, mFragments));
-                                    slidingTabLayout.setViewPager(viewPager);
+        HashMap<String, Object> params = new HashMap<>();
+        Api.config(ApiConfig.VIDEO_CATEGORY_LIST, params).getRequest(getActivity(), new HttpCallBack() {
+            @Override
+            public void onSuccess(final String res) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        VideoCategoryResponse response = new Gson().fromJson(res, VideoCategoryResponse.class);
+                        if (response != null && response.getCode() == 0) {
+                            List<CategoryEntity> list = response.getPage().getList();
+                            if (list != null && list.size() > 0) {
+                                // 通过接口获取导航栏名称
+                                mTitles = new String[list.size()];
+                                for (int i = 0; i < list.size(); i++) {
+                                    mTitles[i] = list.get(i).getCategoryName();
+                                    mFragments.add(VideoFragment.newInstance(list.get(i).getCategoryId()));
                                 }
+                                viewPager.setOffscreenPageLimit(mFragments.size());
+                                viewPager.setAdapter(new HomeAdapter(getFragmentManager(), mTitles, mFragments));
+                                slidingTabLayout.setViewPager(viewPager);
                             }
                         }
-                    });
-                }
+                    }
+                });
+            }
 
-                @Override
-                public void onFailure(Exception e) {
-                }
-            });
-        }
+            @Override
+            public void onFailure(Exception e) {
+            }
+        });
 
     }
 }

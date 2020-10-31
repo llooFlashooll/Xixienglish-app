@@ -275,63 +275,57 @@ public class VideoFragment extends BaseFragment implements OnItemChildClickListe
 
     // 通过接口获取视频数据
     private void getVideoList(final boolean isRefresh) {
-        String token = getStringFromSp("token");
-        if(!StringUtils.isEmpty(token)) {
-            HashMap<String, Object> params = new HashMap<>();
-            // 添加参数
-            params.put("token", token);
-            params.put("page", pageNum);
-            params.put("limit",ApiConfig.PAGE_SIZE);
-            params.put("categoryId", categoryId);
-            Api.config(ApiConfig.VIDEO_LIST_BY_CATEGORY, params).getRequest(new HttpCallBack() {
-                @Override
-                public void onSuccess(final String res) {
-                    // 页面UI在线程里执行
-                    // 页面上拉刷新成功
-                    if (isRefresh) {
-                        refreshLayout.finishRefresh(true);
-                    } else {
-                        refreshLayout.finishLoadMore(true);
-                    }
-                    // 获取视频数据后则传入VideoAdapter
+        HashMap<String, Object> params = new HashMap<>();
+        // 添加参数
+        params.put("page", pageNum);
+        params.put("limit",ApiConfig.PAGE_SIZE);
+        params.put("categoryId", categoryId);
+        Api.config(ApiConfig.VIDEO_LIST_BY_CATEGORY, params).getRequest(getActivity(), new HttpCallBack() {
+            @Override
+            public void onSuccess(final String res) {
+                // 页面UI在线程里执行
+                // 页面上拉刷新成功
+                if (isRefresh) {
+                    refreshLayout.finishRefresh(true);
+                } else {
+                    refreshLayout.finishLoadMore(true);
+                }
+                // 获取视频数据后则传入VideoAdapter
 //                    VideoAdapter videoAdapter = new VideoAdapter(getActivity(), datas);
 //                    recyclerView.setAdapter(videoAdapter);
-                    // 通过Gson库进行转换??
-                    VideoListResponse response = new Gson().fromJson(res, VideoListResponse.class);
-                    if (response != null && response.getCode() == 0) {
-                        List<VideoEntity> list = response.getPage().getList();
-                        if (list != null && list.size() > 0) {
-                            // 刷新添加数据
-                            if(isRefresh) {
-                                datas = list;
-                            } else {
-                                datas.addAll(list);
-                            }
-                            //通过mHandler处理线程问题
-                            mHandler.sendEmptyMessage(0);
-
+                // 通过Gson库进行转换??
+                VideoListResponse response = new Gson().fromJson(res, VideoListResponse.class);
+                if (response != null && response.getCode() == 0) {
+                    List<VideoEntity> list = response.getPage().getList();
+                    if (list != null && list.size() > 0) {
+                        // 刷新添加数据
+                        if(isRefresh) {
+                            datas = list;
                         } else {
-                            if(isRefresh) {
-                                showToastSync("暂时无数据");
-                            } else {
-                                showToastSync("没有更多数据");
-                            }
+                            datas.addAll(list);
+                        }
+                        //通过mHandler处理线程问题
+                        mHandler.sendEmptyMessage(0);
+
+                    } else {
+                        if(isRefresh) {
+                            showToastSync("暂时无数据");
+                        } else {
+                            showToastSync("没有更多数据");
                         }
                     }
                 }
+            }
 
-                @Override
-                public void onFailure(Exception e) {
-                    // 上下拉刷新动画关闭
-                    if(isRefresh) {
-                        refreshLayout.finishRefresh(true);
-                    } else {
-                        refreshLayout.finishLoadMore(true);
-                    }
+            @Override
+            public void onFailure(Exception e) {
+                // 上下拉刷新动画关闭
+                if(isRefresh) {
+                    refreshLayout.finishRefresh(true);
+                } else {
+                    refreshLayout.finishLoadMore(true);
                 }
-            });
-        } else {
-            navigateTo(LoginActivity.class);
-        }
+            }
+        });
     }
 }
